@@ -1,3 +1,7 @@
+import "dotenv/config";
+import mongoose from "mongoose";
+
+import User from "./models/User.js";
 import Recipe from "./models/Recipe.js";
 
 async function testModels() {
