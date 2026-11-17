@@ -4,9 +4,12 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/User.js";
 
+import { requireAuth } from "../middleware/requireAuth.js";
+
 const router = express.Router();
 
 const SALT_ROUNDS = 12;
+
 
 function createToken(userId) {
   return jwt.sign(
@@ -136,5 +139,30 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User no longer exists"
+      });
+    }
+
+    return res.json({
+      id: user._id,
+      username: user.username
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+
+    return res.status(500).json({
+      message: "Server error"
+    });
+  }
+});
+
 
 export default router;
