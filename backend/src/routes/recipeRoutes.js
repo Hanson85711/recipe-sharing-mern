@@ -1,14 +1,29 @@
+
 import express from "express";
-import mongoose from "mongoose";
 import Recipe from "../models/Recipe.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
-router.use(requireAuth);
+// Get all recipes
+router.get("/", async (req, res) => {
+  try {
+    const recipes = await Recipe.find()
+      .populate("author", "username")
+      .sort({ createdAt: -1 });
 
-//Create a Recipe
-router.post("/", async (req, res) => {
+    return res.json(recipes);
+  } catch (error) {
+    console.error("Get recipes error:", error);
+
+    return res.status(500).json({
+      message: "Server error"
+    });
+  }
+});
+
+// Create a new recipe (login required)
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { title, ingredients, imageUrl } = req.body;
 
@@ -39,3 +54,4 @@ router.post("/", async (req, res) => {
 });
 
 export default router;
+
